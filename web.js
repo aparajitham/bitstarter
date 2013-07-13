@@ -3,11 +3,11 @@ var express = require('express');
 var fs = require('fs');
 var app = express.createServer(express.logger());
 var Buffer = new Buffer(30);
-var filecont = (fs.readFileSync('index.html'));
+Buffer = (fs.readFileSync('index.html'));
 app.get('/', function(request, response) {
 
 
-Buffer.write(filecont,'utf-8');
+//Buffer.write(filecont,'utf-8');
 
 response.send(Buffer.toString('utf-8'));
 });
