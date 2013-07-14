@@ -24,14 +24,17 @@ References:
 var fs = require('fs');
 var program = require('commander');
 var cheerio = require('cheerio');
+var rest = require('restler');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
-
+var filesel = "file.html";
+/*new deafualt URL*/
+var URL_DEFAULT = "http://warm-lowlands-7891.herokuapp.com/";
 var assertFileExists = function(infile) {
     var instr = infile.toString();
     if(!fs.existsSync(instr)) {
-        console.log("%s does not exist. Exiting.", instr);
-        process.exit(1); // http://nodejs.org/api/process.html#process_process_exit_code
+	console.log("%s does not exist. Exiting.", instr);
+	process.exit(1); // http://nodejs.org/api/process.html#process_process_exit_code
     }
     return instr;
 };
@@ -49,8 +52,8 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     var checks = loadChecks(checksfile).sort();
     var out = {};
     for(var ii in checks) {
-        var present = $(checks[ii]).length > 0;
-        out[checks[ii]] = present;
+	var present = $(checks[ii]).length > 0;
+	out[checks[ii]] = present;
     }
     return out;
 };
@@ -63,12 +66,28 @@ var clone = function(fn) {
 
 if(require.main == module) {
     program
-        .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
-        .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-        .parse(process.argv);
+	.option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
+	.option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
+    .option('-u, --url <url>', 'URL of file ', clone(assertFileExists) ,URL_DEFAULT)
+	.parse(process.argv);
+/*should makesure what happens when --url is chosen is defined*/
+if (program.url) {
+    rest.get(program.url).on('complete', function(result, response){
+	if (result instanceof Error){
+console.error('Error: ' + util.format(response.message));}
+	else {fs.writeFile( $HOME+ 'bitstarter/file.html', result, function(err){if (err) throw err;});
+}
+
+
+}); var checkJson = checkHtmlFile(filesel, program.checks);    var outJson = JSON.stringify(checkJson, null, 4);
+    console.log(outJson);
+} } else if (program.file)
+{
+
     var checkJson = checkHtmlFile(program.file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
+
 }
