@@ -58,6 +58,9 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     return out;
 };
 
+var buf = new Buffer(5000);
+
+
 var clone = function(fn) {
     // Workaround for commander.js issue.
     // http://stackoverflow.com/a/6772648
@@ -70,24 +73,24 @@ if(require.main == module) {
 	.option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
     .option('-u, --url <url>', 'URL of file ', clone(assertFileExists) ,URL_DEFAULT)
 	.parse(process.argv);
-/*should makesure what happens when --url is chosen is defined*/
-if (program.url) {
-    rest.get(program.url).on('complete', function(result, response){
-	if (result instanceof Error){
-console.error('Error: ' + util.format(response.message));}
-	else {fs.writeFile( $HOME+ 'bitstarter/file.html', result, function(err){if (err) throw err;});
-}
 
+/*if (program.url){console.log(rest.get(program.url));}*/
+rest.get(program.url).on('complete', function(data) {
+  console.log(data);
+fs.writeFile('dlindex.html', data);
+}) /* prints html page source stored in 'data' to screen*/
+/*//fs.writeFile('file.txt', data, function(err) {
+ // if (err) throw err;
+  //console.log('It\'s saved!')
+//};)
 
-}); var checkJson = checkHtmlFile(filesel, program.checks);    var outJson = JSON.stringify(checkJson, null, 4);
-    console.log(outJson);
-} } else if (program.file)
-{
-
-    var checkJson = checkHtmlFile(program.file, program.checks);
+//}
+//}*/
+ var checkJson = checkHtmlFile(program.file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
+/* var checkJson = checkHtmlFile(program.url, program.checks);*/
+
     console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
-
 }
