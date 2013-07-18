@@ -27,7 +27,8 @@ var cheerio = require('cheerio');
 var rest = require('restler');
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
-var filesel = "file.html";
+var dlurl = null;
+/*var filesel = "file.html";
 /*new deafualt URL*/
 var URL_DEFAULT = "http://warm-lowlands-7891.herokuapp.com/";
 var assertFileExists = function(infile) {
@@ -71,26 +72,34 @@ if(require.main == module) {
     program
 	.option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
 	.option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-    .option('-u, --url <url>', 'URL of file ', clone(assertFileExists) ,URL_DEFAULT)
+    .option('-u, --url <url>', 'URL of file ', URL_DEFAULT)
 	.parse(process.argv);
 
 /*if (program.url){console.log(rest.get(program.url));}*/
+if (program.url) {
 rest.get(program.url).on('complete', function(data) {
   console.log(data);
 fs.writeFile('dlindex.html', data);
-}) /* prints html page source stored in 'data' to screen*/
-/*//fs.writeFile('file.txt', data, function(err) {
- // if (err) throw err;
-  //console.log('It\'s saved!')
-//};)
+dlurl = 'dlindex.html';
+var checkJson = checkHtmlFile('dlindex.html', program.checks);
+    var outJson = JSON.stringify(checkJson, null, 4);
+    console.log(outJson);
 
-//}
-//}*/
+});
+console.log(program.file);
+
+  /* var checkJson = checkHtmlFile('dlindex.html', program.checks);
+    var outJson = JSON.stringify(checkJson, null, 4);
+    console.log(outJson);*/
+} else {
+
+
  var checkJson = checkHtmlFile(program.file, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
+
 /* var checkJson = checkHtmlFile(program.url, program.checks);*/
 
-    console.log(outJson);
+    console.log(outJson);}
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
